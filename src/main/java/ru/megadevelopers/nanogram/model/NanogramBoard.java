@@ -1,10 +1,9 @@
 package ru.megadevelopers.nanogram.model;
 
-import com.google.common.eventbus.EventBus;
-
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class NanogramBoard {
 
@@ -16,7 +15,7 @@ public class NanogramBoard {
     public final int height;
 
     private final int[][] board;
-    private EventBus eventBus;
+    private Consumer<BoardValueChangeEvent> onChange;
 
     public NanogramBoard(List<List<Integer>> top, List<List<Integer>> left, int width, int height) {
         this.top = top;
@@ -54,9 +53,7 @@ public class NanogramBoard {
 
     public void setValue(int row, int column, int value) {
         board[row][column] = value;
-        if (eventBus != null) {
-            eventBus.post(new BoardValueChangeEvent(row, column, value));
-        }
+        if (onChange != null) onChange.accept(new BoardValueChangeEvent(row, column, value));
     }
 
     private void printTop(int leftOffset, int topOffset) {
@@ -122,7 +119,7 @@ public class NanogramBoard {
         return Line.isValid(currentLine, candidates);
     }
 
-    public void registerEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public void setOnChange(Consumer<BoardValueChangeEvent> onChange) {
+        this.onChange = onChange;
     }
 }

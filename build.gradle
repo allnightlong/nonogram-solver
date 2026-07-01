@@ -13,7 +13,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:33.6.0-jre'
     implementation 'tools.jackson.core:jackson-databind:3.2.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:6.1.1'

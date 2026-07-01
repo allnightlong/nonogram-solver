@@ -2,10 +2,10 @@ package ru.megadevelopers.nanogram;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import com.google.common.base.Stopwatch;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
 
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +23,9 @@ public class StarterCli {
 
         NanogramBoard nanogram = new NanogramBoard(dataTop, dataLeft, width, height);
 
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        long start = System.nanoTime();
         nanogram.solve();
-        System.out.println("computed in " + stopwatch);
+        System.out.println("computed in " + Duration.ofNanos(System.nanoTime() - start));
 
         nanogram.print(true);
     }

@@ -1,7 +1,5 @@
 package ru.megadevelopers.nanogram.gui;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import ru.megadevelopers.nanogram.model.BoardValueChangeEvent;
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
@@ -15,16 +13,13 @@ public class NanogramFrame extends JFrame {
 
     private final NanogramBoard nanogramBoard;
     private final JTextField[][] fields;
-    private final EventBus eventBus;
 
     public NanogramFrame(NanogramBoard nanogramBoard) {
         super();
         setResizable(false);
         this.nanogramBoard = nanogramBoard;
         this.fields = new JTextField[nanogramBoard.getWidthWithOffset()][nanogramBoard.getHeightWithOffset()];
-        this.eventBus = new EventBus();
-        eventBus.register(this);
-        nanogramBoard.registerEventBus(eventBus);
+        nanogramBoard.setOnChange(this::onBoardValueChange);
     }
 
     public void addComponentsToPane(Container pane) {
@@ -103,8 +98,7 @@ public class NanogramFrame extends JFrame {
         });
     }
 
-    @Subscribe
-    public void onBoardValueChange(BoardValueChangeEvent event) {
+    private void onBoardValueChange(BoardValueChangeEvent event) {
         System.out.println(event);
         fillField(event.row() + nanogramBoard.topOffset(), event.column() + nanogramBoard.leftOffset());
     }
