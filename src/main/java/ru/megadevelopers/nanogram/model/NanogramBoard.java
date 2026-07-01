@@ -8,7 +8,7 @@ public class NanogramBoard {
 
     @FunctionalInterface
     public interface CellChangeListener {
-        void onCellChanged(int row, int column, int value);
+        void onCellChanged(int row, int column, Cell value);
     }
 
     static final int DELAY = 100;
@@ -18,7 +18,7 @@ public class NanogramBoard {
     public final int width;
     public final int height;
 
-    private final int[][] board;
+    private final Cell[][] board;
     private CellChangeListener onChange;
 
     public NanogramBoard(List<List<Integer>> top, List<List<Integer>> left, int width, int height) {
@@ -26,7 +26,8 @@ public class NanogramBoard {
         this.left = left;
         this.width = width;
         this.height = height;
-        this.board = new int[height][width];
+        this.board = new Cell[height][width];
+        for (Cell[] row : this.board) Arrays.fill(row, Cell.NO_VALUE);
     }
 
     public void print(boolean printBoard) {
@@ -51,11 +52,11 @@ public class NanogramBoard {
         return width + leftOffset();
     }
 
-    public int getValue(int row, int column) {
+    public Cell getValue(int row, int column) {
         return board[row][column];
     }
 
-    public void setValue(int row, int column, int value) {
+    public void setValue(int row, int column, Cell value) {
         board[row][column] = value;
         if (onChange != null) onChange.onCellChanged(row, column, value);
     }
@@ -113,13 +114,12 @@ public class NanogramBoard {
 
     private boolean isValidRow(int row) {
         List<BitSet> candidates = Line.candidates(left.get(row), width);
-        List<Integer> currentLine = Arrays.stream(board[row]).boxed().toList();
-        return Line.isValid(currentLine, candidates);
+        return Line.isValid(Arrays.asList(board[row]), candidates);
     }
 
     private boolean isValidColumn(int column) {
         List<BitSet> candidates = Line.candidates(top.get(column), height);
-        List<Integer> currentLine = Arrays.stream(board).mapToInt(r -> r[column]).boxed().toList();
+        List<Cell> currentLine = Arrays.stream(board).map(r -> r[column]).toList();
         return Line.isValid(currentLine, candidates);
     }
 

@@ -97,7 +97,7 @@ public class NanogramFrame extends JFrame {
         });
     }
 
-    private void onBoardValueChange(int row, int column, int value) {
+    private void onBoardValueChange(int row, int column, Cell value) {
         fillField(row + nanogramBoard.topOffset(), column + nanogramBoard.leftOffset());
     }
 }
