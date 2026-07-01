@@ -1,6 +1,5 @@
 package ru.megadevelopers.nanogram.gui;
 
-import ru.megadevelopers.nanogram.model.BoardValueChangeEvent;
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
 
@@ -98,8 +97,7 @@ public class NanogramFrame extends JFrame {
         });
     }
 
-    private void onBoardValueChange(BoardValueChangeEvent event) {
-        System.out.println(event);
-        fillField(event.row() + nanogramBoard.topOffset(), event.column() + nanogramBoard.leftOffset());
+    private void onBoardValueChange(int row, int column, int value) {
+        fillField(row + nanogramBoard.topOffset(), column + nanogramBoard.leftOffset());
     }
 }
