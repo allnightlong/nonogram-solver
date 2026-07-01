@@ -1,7 +1,7 @@
 package ru.megadevelopers.nanogram;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import ru.megadevelopers.nanogram.gui.NanogramFrame;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
 
@@ -15,7 +15,7 @@ public class StarterGui {
     public static void main(String[] args) throws Exception {
         URL resource = StarterGui.class.getResource("/source_small.json");
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(resource);
+        JsonNode root = mapper.readTree(resource.openStream());
 
         List<List<Integer>> dataTop = parseClueArray(root.get("data_top"));
         List<List<Integer>> dataLeft = parseClueArray(root.get("data_left"));
