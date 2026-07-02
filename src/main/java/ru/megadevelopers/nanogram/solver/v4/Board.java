@@ -32,6 +32,14 @@ class Board {
         return copy;
     }
 
+    int rowsCount() {
+        return cells.length;
+    }
+
+    int columnCount() {
+        return cells.length == 0 ? 0 : cells[0].length;
+    }
+
     Cell get(int row, int column) {
         return cells[row][column];
     }

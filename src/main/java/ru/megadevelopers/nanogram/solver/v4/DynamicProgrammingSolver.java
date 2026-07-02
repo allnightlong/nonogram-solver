@@ -52,13 +52,13 @@ public class DynamicProgrammingSolver implements Solver {
         boolean changed;
         do {
             changed = false;
-            for (int row = 0; row < puzzle.height(); row++) {
+            for (int row = 0; row < board.rowsCount(); row++) {
                 LineView line = board.row(row);
                 Cell[] forced = LineForcedCellSolver.determineForced(line, puzzle.rowClues().get(row));
                 if (forced == null) return false;
                 if (apply(line, forced)) changed = true;
             }
-            for (int column = 0; column < puzzle.width(); column++) {
+            for (int column = 0; column < board.columnCount(); column++) {
                 LineView line = board.column(column);
                 Cell[] forced = LineForcedCellSolver.determineForced(line, puzzle.columnClues().get(column));
                 if (forced == null) return false;
@@ -87,7 +87,7 @@ public class DynamicProgrammingSolver implements Solver {
      */
     private static GuessCell findMostConstrainedCell(Board board, Puzzle puzzle) {
         int bestRow = -1, bestRowCount = Integer.MAX_VALUE;
-        for (int row = 0; row < puzzle.height(); row++) {
+        for (int row = 0; row < board.rowsCount(); row++) {
             int count = countUndetermined(board.row(row));
             if (count > 0 && count < bestRowCount) {
                 bestRow = row;
@@ -96,7 +96,7 @@ public class DynamicProgrammingSolver implements Solver {
         }
 
         int bestColumn = -1, bestColumnCount = Integer.MAX_VALUE;
-        for (int column = 0; column < puzzle.width(); column++) {
+        for (int column = 0; column < board.columnCount(); column++) {
             int count = countUndetermined(board.column(column));
             if (count > 0 && count < bestColumnCount) {
                 bestColumn = column;
