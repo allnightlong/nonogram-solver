@@ -45,15 +45,15 @@ class LineFeasibility {
 
     boolean isFeasibleAt(Block block, int blockStart) {
         if (!isFeasibleBefore(blockStart, block.index())) return false;
-        if (!isRangeCompatible(line, blockStart, blockStart + block.length(), Cell.FILLED)) return false;
-        return isFeasibleAfter(blockStart + block.length(), block.index());
+        if (!isFeasibleAfter(blockStart + block.length(), block.index())) return false;
+        return cellsCanBe(line, blockStart, blockStart + block.length(), Cell.FILLED);
     }
 
     /** Can the blocks before {@code blockIndex} fit in the line before {@code blockStart}? */
     private boolean isFeasibleBefore(int blockStart, int blockIndex) {
         if (blockIndex == 0) return prefixFeasibility.isFeasible(blockStart, 0);
         return blockStart >= 1
-                && isCompatible(line.get(blockStart - 1), Cell.EMPTY)
+                && cellCanBe(line.get(blockStart - 1), Cell.EMPTY)
                 && prefixFeasibility.isFeasible(blockStart - 1, blockIndex);
     }
 
@@ -63,7 +63,7 @@ class LineFeasibility {
             return isFeasibleAfterViaReversedTable(blockEnd, blockCount);
         }
         return blockEnd < lineLength
-                && isCompatible(line.get(blockEnd), Cell.EMPTY)
+                && cellCanBe(line.get(blockEnd), Cell.EMPTY)
                 && isFeasibleAfterViaReversedTable(blockEnd + 1, blockIndex + 1);
     }
 
@@ -96,23 +96,23 @@ class LineFeasibility {
 
         for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
             feasibilityTable.markFeasible(prefixLength, 0,
-                    feasibilityTable.isFeasible(prefixLength - 1, 0) && isCompatible(line.get(prefixLength - 1), Cell.EMPTY));
+                    feasibilityTable.isFeasible(prefixLength - 1, 0) && cellCanBe(line.get(prefixLength - 1), Cell.EMPTY));
         }
 
         for (int blocksPlaced = 1; blocksPlaced <= blockCount; blocksPlaced++) {
             int blockLength = blockLengths.get(blocksPlaced - 1);
             for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
                 boolean canFit = feasibilityTable.isFeasible(prefixLength - 1, blocksPlaced)
-                        && isCompatible(line.get(prefixLength - 1), Cell.EMPTY);
+                        && cellCanBe(line.get(prefixLength - 1), Cell.EMPTY);
 
                 if (!canFit && prefixLength >= blockLength) {
                     int blockStart = prefixLength - blockLength;
-                    if (isRangeCompatible(line, blockStart, prefixLength, Cell.FILLED)) {
+                    if (cellsCanBe(line, blockStart, prefixLength, Cell.FILLED)) {
                         if (blocksPlaced == 1) {
                             canFit = feasibilityTable.isFeasible(blockStart, 0);
                         } else {
                             canFit = blockStart >= 1
-                                    && isCompatible(line.get(blockStart - 1), Cell.EMPTY)
+                                    && cellCanBe(line.get(blockStart - 1), Cell.EMPTY)
                                     && feasibilityTable.isFeasible(blockStart - 1, blocksPlaced - 1);
                         }
                     }
@@ -123,14 +123,14 @@ class LineFeasibility {
         return feasibilityTable;
     }
 
-    private static boolean isRangeCompatible(LineView line, int from, int to, Cell desired) {
+    private static boolean cellsCanBe(LineView line, int from, int to, Cell desired) {
         for (int position = from; position < to; position++) {
-            if (!isCompatible(line.get(position), desired)) return false;
+            if (!cellCanBe(line.get(position), desired)) return false;
         }
         return true;
     }
 
-    private static boolean isCompatible(Cell cell, Cell desired) {
+    private static boolean cellCanBe(Cell cell, Cell desired) {
         return cell == Cell.NO_VALUE || cell == desired;
     }
 
