@@ -3,7 +3,10 @@ package ru.megadevelopers.nanogram.solver.v4;
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.Clue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Determines, for a single line, which cells are forced FILLED or EMPTY
@@ -17,9 +20,9 @@ class LineForcedCellSolver {
 
     /** Forced values per cell (NO_VALUE where still undetermined), or null if infeasible. */
     static Cell[] determineForced(LineView line, Clue clue) {
-        int[] blockLengths = clue.blockLengths().stream().mapToInt(Integer::intValue).toArray();
+        List<Integer> blockLengths = clue.blockLengths();
         int lineLength = line.length();
-        int blockCount = blockLengths.length;
+        int blockCount = blockLengths.size();
 
         FeasibilityTable prefixFeasibility = computePrefixFeasibility(line, blockLengths);
         if (!prefixFeasibility.isFeasible(lineLength, blockCount)) return null;
@@ -33,11 +36,11 @@ class LineForcedCellSolver {
         }
 
         FeasibilityTable reversedPrefixFeasibility =
-                computePrefixFeasibility(reverse(line), reverseBlockLengths(blockLengths));
+                computePrefixFeasibility(reverse(line), reversed(blockLengths));
         boolean[] possiblyFilledCells = new boolean[lineLength];
 
         for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            int blockLength = blockLengths[blockIndex];
+            int blockLength = blockLengths.get(blockIndex);
             int leftmostFeasibleStart = -1, rightmostFeasibleStart = -1;
 
             for (int candidateStart = 0; candidateStart + blockLength <= lineLength; candidateStart++) {
@@ -112,9 +115,9 @@ class LineForcedCellSolver {
      * at the end of this prefix (with its mandatory single-cell gap before
      * it, unless it's the first block).
      */
-    private static FeasibilityTable computePrefixFeasibility(LineView line, int[] blockLengths) {
+    private static FeasibilityTable computePrefixFeasibility(LineView line, List<Integer> blockLengths) {
         int lineLength = line.length();
-        int blockCount = blockLengths.length;
+        int blockCount = blockLengths.size();
         FeasibilityTable feasibilityTable = new FeasibilityTable(lineLength, blockCount);
         feasibilityTable.markFeasible(0, 0, true);
 
@@ -124,7 +127,7 @@ class LineForcedCellSolver {
         }
 
         for (int blocksPlaced = 1; blocksPlaced <= blockCount; blocksPlaced++) {
-            int blockLength = blockLengths[blocksPlaced - 1];
+            int blockLength = blockLengths.get(blocksPlaced - 1);
             for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
                 boolean canFit = feasibilityTable.isFeasible(prefixLength - 1, blocksPlaced)
                         && isCompatible(line.get(prefixLength - 1), Cell.EMPTY);
@@ -174,9 +177,9 @@ class LineForcedCellSolver {
         };
     }
 
-    private static int[] reverseBlockLengths(int[] blockLengths) {
-        int[] result = new int[blockLengths.length];
-        for (int i = 0; i < blockLengths.length; i++) result[i] = blockLengths[blockLengths.length - 1 - i];
+    private static List<Integer> reversed(List<Integer> blockLengths) {
+        List<Integer> result = new ArrayList<>(blockLengths);
+        Collections.reverse(result);
         return result;
     }
 }
