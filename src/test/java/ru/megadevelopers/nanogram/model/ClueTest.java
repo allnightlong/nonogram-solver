@@ -31,4 +31,11 @@ class ClueTest {
         assertThrows(IllegalArgumentException.class, () -> Clue.of(2, 0));
         assertThrows(IllegalArgumentException.class, () -> Clue.of(2, -1));
     }
+
+    @Test
+    void blocksPairEachLengthWithItsIndex() {
+        Clue clue = Clue.of(2, 1);
+
+        assertEquals(List.of(new Block(0, 2), new Block(1, 1)), clue.blocks());
+    }
 }

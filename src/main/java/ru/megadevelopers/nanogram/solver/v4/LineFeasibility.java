@@ -1,5 +1,6 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
+import ru.megadevelopers.nanogram.model.Block;
 import ru.megadevelopers.nanogram.model.Cell;
 
 import java.util.ArrayList;
@@ -8,13 +9,13 @@ import java.util.List;
 
 /**
  * Answers feasibility questions for one line against one clue - "is the
- * whole line feasible at all," and "can block i be placed starting at
- * position s" - by combining a forward pass (blocks before i must fit
- * before s) with a backward pass computed on the reversed line (blocks
- * after i must fit after s ends). Steve Simpson's classic nonogram
+ * whole line feasible at all," and "is this block feasible starting at
+ * this position" - by combining a forward pass (earlier blocks must fit
+ * before that position) with a backward pass computed on the reversed line
+ * (later blocks must fit after it ends). Steve Simpson's classic nonogram
  * line-solving technique: cost is O(length x blocks), independent of how
  * many valid placements exist. Built once per line, then queried per
- * (block, candidate start) pair during the sweep in LineForcedCellSolver.
+ * (block, start position) pair during the sweep in LineForcedCellSolver.
  */
 class LineFeasibility {
 
@@ -24,35 +25,36 @@ class LineFeasibility {
     private final FeasibilityTable prefixFeasibility;
     private final FeasibilityTable reversedPrefixFeasibility;
 
-    private LineFeasibility(LineView line, List<Integer> blockLengths) {
+    private LineFeasibility(LineView line, List<Block> blocks) {
         this.line = line;
         this.lineLength = line.length();
-        this.blockCount = blockLengths.size();
+        this.blockCount = blocks.size();
+        List<Integer> blockLengths = blocks.stream().map(Block::length).toList();
         this.prefixFeasibility = computePrefixFeasibility(line, blockLengths);
         this.reversedPrefixFeasibility = computePrefixFeasibility(line.reversed(), reverseBlockLengths(blockLengths));
     }
 
     /** Computes both feasibility tables for this line against these blocks - O(length x blocks) work. */
-    static LineFeasibility analyze(LineView line, List<Integer> blockLengths) {
-        return new LineFeasibility(line, blockLengths);
+    static LineFeasibility analyze(LineView line, List<Block> blocks) {
+        return new LineFeasibility(line, blocks);
     }
 
     boolean isFullyFeasible() {
         return prefixFeasibility.isFeasible(lineLength, blockCount);
     }
 
-    boolean canPlaceBlockAt(int blockIndex, int candidateStart, int blockLength) {
-        if (!isPrefixFeasible(candidateStart, blockIndex)) return false;
-        if (!isRangeCompatible(line, candidateStart, candidateStart + blockLength, Cell.FILLED)) return false;
-        return isSuffixFeasible(candidateStart + blockLength, blockIndex);
+    boolean isFeasibleAt(Block block, int blockStart) {
+        if (!isPrefixFeasible(blockStart, block.index())) return false;
+        if (!isRangeCompatible(line, blockStart, blockStart + block.length(), Cell.FILLED)) return false;
+        return isSuffixFeasible(blockStart + block.length(), block.index());
     }
 
-    /** Can the blocks before {@code blockIndex} fit in the line before {@code candidateStart}? */
-    private boolean isPrefixFeasible(int candidateStart, int blockIndex) {
-        if (blockIndex == 0) return prefixFeasibility.isFeasible(candidateStart, 0);
-        return candidateStart >= 1
-                && isCompatible(line.get(candidateStart - 1), Cell.EMPTY)
-                && prefixFeasibility.isFeasible(candidateStart - 1, blockIndex);
+    /** Can the blocks before {@code blockIndex} fit in the line before {@code blockStart}? */
+    private boolean isPrefixFeasible(int blockStart, int blockIndex) {
+        if (blockIndex == 0) return prefixFeasibility.isFeasible(blockStart, 0);
+        return blockStart >= 1
+                && isCompatible(line.get(blockStart - 1), Cell.EMPTY)
+                && prefixFeasibility.isFeasible(blockStart - 1, blockIndex);
     }
 
     /** Can the blocks after {@code blockIndex} fit in the line from {@code blockEnd} onward? */
