@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.gui;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
 import ru.megadevelopers.nanogram.solver.v3.HybridSolver;
 import ru.megadevelopers.nanogram.solver.Puzzle;
@@ -64,7 +65,7 @@ public class NanogramFrame extends JFrame {
         if (row < topOffset && column < leftOffset) return null;
 
         if (row >= topOffset && column >= leftOffset) {
-            return nanogramBoard.getValue(row - topOffset, column - leftOffset) == Cell.FILLED ? "X" : "";
+            return nanogramBoard.getValue(row - topOffset, column - leftOffset) == FILLED ? "X" : "";
         }
 
         if (row < topOffset) {

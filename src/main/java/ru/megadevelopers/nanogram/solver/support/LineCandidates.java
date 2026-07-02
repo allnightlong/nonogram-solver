@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.support;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -37,8 +38,8 @@ class LineCandidates implements Iterable<BitSet> {
 
     /** The forced value at this position if every remaining candidate agrees, else NO_VALUE. */
     Cell cellAt(int index) {
-        if (!allAgree(index)) return Cell.NO_VALUE;
-        return candidates.get(0).get(index) ? Cell.FILLED : Cell.EMPTY;
+        if (!allAgree(index)) return NO_VALUE;
+        return candidates.get(0).get(index) ? FILLED : EMPTY;
     }
 
     /** The first position where remaining candidates disagree. */

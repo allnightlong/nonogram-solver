@@ -8,6 +8,7 @@ import ru.megadevelopers.nanogram.solver.SolveResult;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static ru.megadevelopers.nanogram.model.Clue.clueOf;
 
 class PropagationSolverTest {
 
@@ -16,8 +17,8 @@ class PropagationSolverTest {
     @Test
     void solvesPuzzleFullyDeterminedByPropagation() {
         Puzzle puzzle = new Puzzle(
-                List.of(Clue.of(1), Clue.of(3), Clue.of(1)),
-                List.of(Clue.of(1), Clue.of(3), Clue.of(1)),
+                List.of(clueOf(1), clueOf(3), clueOf(1)),
+                List.of(clueOf(1), clueOf(3), clueOf(1)),
                 3, 3);
 
         assertInstanceOf(SolveResult.Solved.class, solver.solve(puzzle));
@@ -29,8 +30,8 @@ class PropagationSolverTest {
         // satisfies every line's clue, so no line's candidates ever share a
         // common forced bit and propagation makes zero progress.
         Puzzle puzzle = new Puzzle(
-                List.of(Clue.of(1), Clue.of(1), Clue.of(1)),
-                List.of(Clue.of(1), Clue.of(1), Clue.of(1)),
+                List.of(clueOf(1), clueOf(1), clueOf(1)),
+                List.of(clueOf(1), clueOf(1), clueOf(1)),
                 3, 3);
 
         assertInstanceOf(SolveResult.Ambiguous.class, solver.solve(puzzle));
@@ -38,7 +39,7 @@ class PropagationSolverTest {
 
     @Test
     void reportsNoSolutionWhenClueExceedsLineLength() {
-        Puzzle puzzle = new Puzzle(List.of(Clue.of(2)), List.of(Clue.of(2)), 1, 1);
+        Puzzle puzzle = new Puzzle(List.of(clueOf(2)), List.of(clueOf(2)), 1, 1);
 
         assertInstanceOf(SolveResult.NoSolution.class, solver.solve(puzzle));
     }

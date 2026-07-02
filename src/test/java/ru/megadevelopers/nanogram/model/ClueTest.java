@@ -6,6 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.megadevelopers.nanogram.model.Clue.clueOf;
 
 class ClueTest {
 
@@ -27,14 +28,14 @@ class ClueTest {
     }
 
     @Test
-    void ofFactoryRejectsNonPositiveValues() {
-        assertThrows(IllegalArgumentException.class, () -> Clue.of(2, 0));
-        assertThrows(IllegalArgumentException.class, () -> Clue.of(2, -1));
+    void clueOfFactoryRejectsNonPositiveValues() {
+        assertThrows(IllegalArgumentException.class, () -> clueOf(2, 0));
+        assertThrows(IllegalArgumentException.class, () -> clueOf(2, -1));
     }
 
     @Test
     void blocksPairEachLengthWithItsIndex() {
-        Clue clue = Clue.of(2, 1);
+        Clue clue = clueOf(2, 1);
 
         assertEquals(List.of(new Block(0, 2), new Block(1, 1)), clue.blocks());
     }

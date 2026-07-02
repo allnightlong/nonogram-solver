@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 
 /**
  * A live view over one row or column of a {@link Board} (or over another
@@ -35,14 +36,14 @@ interface LineView {
     default int countUndetermined() {
         int count = 0;
         for (int i = 0; i < length(); i++) {
-            if (get(i) == Cell.NO_VALUE) count++;
+            if (get(i) == NO_VALUE) count++;
         }
         return count;
     }
 
     default int firstUndetermined() {
         for (int i = 0; i < length(); i++) {
-            if (get(i) == Cell.NO_VALUE) return i;
+            if (get(i) == NO_VALUE) return i;
         }
         throw new IllegalStateException("line has no undetermined cell");
     }
@@ -51,7 +52,7 @@ interface LineView {
     default boolean applyForced(Cell[] forced) {
         boolean changed = false;
         for (int i = 0; i < forced.length; i++) {
-            if (forced[i] != Cell.NO_VALUE && get(i) == Cell.NO_VALUE) {
+            if (forced[i] != NO_VALUE && get(i) == NO_VALUE) {
                 set(i, forced[i]);
                 changed = true;
             }

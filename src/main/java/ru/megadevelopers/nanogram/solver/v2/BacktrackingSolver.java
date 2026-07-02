@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v2;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 import ru.megadevelopers.nanogram.model.Line;
 import ru.megadevelopers.nanogram.solver.CellListener;
 import ru.megadevelopers.nanogram.solver.Puzzle;
@@ -24,7 +25,7 @@ public class BacktrackingSolver implements Solver {
     @Override
     public SolveResult solve(Puzzle puzzle, CellListener listener) {
         Cell[][] board = new Cell[puzzle.height()][puzzle.width()];
-        for (Cell[] row : board) Arrays.fill(row, Cell.NO_VALUE);
+        for (Cell[] row : board) Arrays.fill(row, NO_VALUE);
 
         boolean animate = listener != CellListener.NO_OP;
         boolean solved = solve(board, puzzle, listener, animate);
@@ -37,12 +38,12 @@ public class BacktrackingSolver implements Solver {
 
         for (int row = 0; row < puzzle.height(); row++) {
             for (int column = 0; column < puzzle.width(); column++) {
-                if (board[row][column] == Cell.NO_VALUE) {
-                    if (trySet(board, puzzle, listener, animate, row, column, Cell.FILLED)) return true;
-                    if (trySet(board, puzzle, listener, animate, row, column, Cell.EMPTY)) return true;
+                if (board[row][column] == NO_VALUE) {
+                    if (trySet(board, puzzle, listener, animate, row, column, FILLED)) return true;
+                    if (trySet(board, puzzle, listener, animate, row, column, EMPTY)) return true;
 
-                    board[row][column] = Cell.NO_VALUE;
-                    listener.onCellChanged(row, column, Cell.NO_VALUE);
+                    board[row][column] = NO_VALUE;
+                    listener.onCellChanged(row, column, NO_VALUE);
                     return false;
                 }
             }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import static ru.megadevelopers.nanogram.model.Cell.*;
+
 public class Line {
 
     public static boolean isValid(List<Cell> line, List<BitSet> candidates) {
@@ -13,8 +15,8 @@ public class Line {
     public static boolean isValid(List<Cell> line, BitSet candidate) {
         for (int index = 0; index < line.size(); index++) {
             Cell cell = line.get(index);
-            if (cell == Cell.EMPTY && candidate.get(index)) return false;
-            if (cell == Cell.FILLED && !candidate.get(index)) return false;
+            if (cell == EMPTY && candidate.get(index)) return false;
+            if (cell == FILLED && !candidate.get(index)) return false;
         }
         return true;
     }

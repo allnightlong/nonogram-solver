@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static ru.megadevelopers.nanogram.model.Cell.*;
+
 /**
  * Answers feasibility questions for one line against one clue - "is the
  * whole line feasible at all," and "is this block feasible starting at
@@ -46,14 +48,14 @@ class LineFeasibility {
     boolean isFeasibleAt(Block block, int blockStart) {
         if (!isFeasibleBefore(blockStart, block.index())) return false;
         if (!isFeasibleAfter(blockStart + block.length(), block.index())) return false;
-        return cellsCanBe(line, blockStart, blockStart + block.length(), Cell.FILLED);
+        return cellsCanBe(line, blockStart, blockStart + block.length(), FILLED);
     }
 
     /** Can the blocks before {@code blockIndex} fit in the line before {@code blockStart}? */
     private boolean isFeasibleBefore(int blockStart, int blockIndex) {
         if (blockIndex == 0) return prefixFeasibility.isFeasible(blockStart, 0);
         return blockStart >= 1
-                && cellCanBe(line.get(blockStart - 1), Cell.EMPTY)
+                && cellCanBe(line.get(blockStart - 1), EMPTY)
                 && prefixFeasibility.isFeasible(blockStart - 1, blockIndex);
     }
 
@@ -63,7 +65,7 @@ class LineFeasibility {
             return isFeasibleAfterViaReversedTable(blockEnd, blockCount);
         }
         return blockEnd < lineLength
-                && cellCanBe(line.get(blockEnd), Cell.EMPTY)
+                && cellCanBe(line.get(blockEnd), EMPTY)
                 && isFeasibleAfterViaReversedTable(blockEnd + 1, blockIndex + 1);
     }
 
@@ -96,23 +98,23 @@ class LineFeasibility {
 
         for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
             feasibilityTable.markFeasible(prefixLength, 0,
-                    feasibilityTable.isFeasible(prefixLength - 1, 0) && cellCanBe(line.get(prefixLength - 1), Cell.EMPTY));
+                    feasibilityTable.isFeasible(prefixLength - 1, 0) && cellCanBe(line.get(prefixLength - 1), EMPTY));
         }
 
         for (int blocksPlaced = 1; blocksPlaced <= blockCount; blocksPlaced++) {
             int blockLength = blockLengths.get(blocksPlaced - 1);
             for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
                 boolean canFit = feasibilityTable.isFeasible(prefixLength - 1, blocksPlaced)
-                        && cellCanBe(line.get(prefixLength - 1), Cell.EMPTY);
+                        && cellCanBe(line.get(prefixLength - 1), EMPTY);
 
                 if (!canFit && prefixLength >= blockLength) {
                     int blockStart = prefixLength - blockLength;
-                    if (cellsCanBe(line, blockStart, prefixLength, Cell.FILLED)) {
+                    if (cellsCanBe(line, blockStart, prefixLength, FILLED)) {
                         if (blocksPlaced == 1) {
                             canFit = feasibilityTable.isFeasible(blockStart, 0);
                         } else {
                             canFit = blockStart >= 1
-                                    && cellCanBe(line.get(blockStart - 1), Cell.EMPTY)
+                                    && cellCanBe(line.get(blockStart - 1), EMPTY)
                                     && feasibilityTable.isFeasible(blockStart - 1, blocksPlaced - 1);
                         }
                     }
@@ -131,7 +133,7 @@ class LineFeasibility {
     }
 
     private static boolean cellCanBe(Cell cell, Cell desired) {
-        return cell == Cell.NO_VALUE || cell == desired;
+        return cell == NO_VALUE || cell == desired;
     }
 
     private static List<Integer> reverseBlockLengths(List<Integer> blockLengths) {

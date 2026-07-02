@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v1;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 import ru.megadevelopers.nanogram.solver.CellListener;
 import ru.megadevelopers.nanogram.solver.Puzzle;
 import ru.megadevelopers.nanogram.solver.SolveResult;
@@ -32,7 +33,7 @@ public class PropagationSolver implements Solver {
     private static void emit(Cell[][] board, CellListener listener) {
         for (int row = 0; row < board.length; row++) {
             for (int column = 0; column < board[row].length; column++) {
-                if (board[row][column] != Cell.NO_VALUE) {
+                if (board[row][column] != NO_VALUE) {
                     listener.onCellChanged(row, column, board[row][column]);
                 }
             }

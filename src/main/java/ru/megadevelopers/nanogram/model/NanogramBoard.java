@@ -3,6 +3,8 @@ package ru.megadevelopers.nanogram.model;
 import java.util.Arrays;
 import java.util.List;
 
+import static ru.megadevelopers.nanogram.model.Cell.*;
+
 public class NanogramBoard {
 
     @FunctionalInterface
@@ -24,7 +26,7 @@ public class NanogramBoard {
         this.width = width;
         this.height = height;
         this.board = new Cell[height][width];
-        for (Cell[] row : this.board) Arrays.fill(row, Cell.NO_VALUE);
+        for (Cell[] row : this.board) Arrays.fill(row, NO_VALUE);
     }
 
     public void print(boolean printBoard) {
@@ -79,7 +81,7 @@ public class NanogramBoard {
             }
             if (printBoard) {
                 for (int column = 0; column < width; column++) {
-                    System.out.print(getValue(row, column) == Cell.FILLED ? 'X' : '.');
+                    System.out.print(getValue(row, column) == FILLED ? 'X' : '.');
                 }
             }
             System.out.println();

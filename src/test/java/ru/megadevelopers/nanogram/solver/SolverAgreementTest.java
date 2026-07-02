@@ -15,18 +15,19 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static ru.megadevelopers.nanogram.model.Clue.clueOf;
 
 class SolverAgreementTest {
 
     private static Stream<Puzzle> uniquelySolvablePuzzles() {
         return Stream.of(
                 new Puzzle(
-                        List.of(Clue.of(3), Clue.of(3), Clue.of(3)),
-                        List.of(Clue.of(3), Clue.of(3), Clue.of(3)),
+                        List.of(clueOf(3), clueOf(3), clueOf(3)),
+                        List.of(clueOf(3), clueOf(3), clueOf(3)),
                         3, 3),
                 new Puzzle(
-                        List.of(Clue.of(1), Clue.of(3), Clue.of(1)),
-                        List.of(Clue.of(1), Clue.of(3), Clue.of(1)),
+                        List.of(clueOf(1), clueOf(3), clueOf(1)),
+                        List.of(clueOf(1), clueOf(3), clueOf(1)),
                         3, 3)
         );
     }

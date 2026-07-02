@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 import ru.megadevelopers.nanogram.solver.CellListener;
 import ru.megadevelopers.nanogram.solver.Puzzle;
 import ru.megadevelopers.nanogram.solver.SolveResult;
@@ -38,12 +39,12 @@ public class DynamicProgrammingSolver implements Solver {
         GuessCell guess = findMostConstrainedCell(board, puzzle);
 
         Board withFilled = board.copy();
-        withFilled.set(guess.row(), guess.column(), Cell.FILLED);
+        withFilled.set(guess.row(), guess.column(), FILLED);
         Board result = solve(withFilled, puzzle);
         if (result != null) return result;
 
         Board withEmpty = board.copy();
-        withEmpty.set(guess.row(), guess.column(), Cell.EMPTY);
+        withEmpty.set(guess.row(), guess.column(), EMPTY);
         return solve(withEmpty, puzzle);
     }
 

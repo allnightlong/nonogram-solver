@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ru.megadevelopers.nanogram.model.Clue.clueOf;
 
 class LineTest {
 
@@ -12,7 +13,7 @@ class LineTest {
     void candidates_blockPlusTwoBlock() {
         assertEquals(
             Line.bitSetList(List.of(List.of(1, 0, 1, 1))),
-            Line.candidates(Clue.of(1, 2), 4)
+            Line.candidates(clueOf(1, 2), 4)
         );
     }
 
@@ -24,7 +25,7 @@ class LineTest {
                 List.of(0, 1, 0),
                 List.of(0, 0, 1)
             )),
-            Line.candidates(Clue.of(1), 3)
+            Line.candidates(clueOf(1), 3)
         );
     }
 
@@ -37,7 +38,7 @@ class LineTest {
                 List.of(0, 0, 1, 1, 0),
                 List.of(0, 0, 0, 1, 1)
             )),
-            Line.candidates(Clue.of(2), 5)
+            Line.candidates(clueOf(2), 5)
         );
     }
 
@@ -49,7 +50,7 @@ class LineTest {
                 List.of(1, 1, 0, 0, 1),
                 List.of(0, 1, 1, 0, 1)
             )),
-            Line.candidates(Clue.of(2, 1), 5)
+            Line.candidates(clueOf(2, 1), 5)
         );
     }
 }

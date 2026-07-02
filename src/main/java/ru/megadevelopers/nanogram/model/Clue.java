@@ -12,7 +12,7 @@ public record Clue(List<Integer> blockLengths) {
         }
     }
 
-    public static Clue of(Integer... blocks) {
+    public static Clue clueOf(Integer... blocks) {
         return new Clue(List.of(blocks));
     }
 

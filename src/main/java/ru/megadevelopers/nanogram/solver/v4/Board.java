@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import static ru.megadevelopers.nanogram.model.Cell.*;
 import ru.megadevelopers.nanogram.solver.CellListener;
 
 import java.util.Arrays;
@@ -16,7 +17,7 @@ class Board {
 
     Board(int height, int width) {
         this.cells = new Cell[height][width];
-        for (Cell[] row : cells) Arrays.fill(row, Cell.NO_VALUE);
+        for (Cell[] row : cells) Arrays.fill(row, NO_VALUE);
     }
 
     private Board(Cell[][] cells) {
@@ -84,7 +85,7 @@ class Board {
     boolean isFullyDetermined() {
         for (Cell[] row : cells) {
             for (Cell cell : row) {
-                if (cell == Cell.NO_VALUE) return false;
+                if (cell == NO_VALUE) return false;
             }
         }
         return true;
