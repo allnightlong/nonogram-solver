@@ -14,7 +14,7 @@ class LineFeasibilityTest {
     void wholeLineIsFeasibleWhenBlocksFitWithSlack() {
         Board board = new Board(1, 5);
 
-        LineFeasibility feasibility = new LineFeasibility(board.row(0), List.of(1, 2));
+        LineFeasibility feasibility = LineFeasibility.analyze(board.row(0), List.of(1, 2));
 
         assertTrue(feasibility.isFullyFeasible());
     }
@@ -23,7 +23,7 @@ class LineFeasibilityTest {
     void wholeLineIsInfeasibleWhenABlockCannotFit() {
         Board board = new Board(1, 1);
 
-        LineFeasibility feasibility = new LineFeasibility(board.row(0), List.of(2));
+        LineFeasibility feasibility = LineFeasibility.analyze(board.row(0), List.of(2));
 
         assertFalse(feasibility.isFullyFeasible());
     }
@@ -32,7 +32,7 @@ class LineFeasibilityTest {
     void singleBlockWithNoSlackOnlyFitsAtOnePosition() {
         Board board = new Board(1, 3);
 
-        LineFeasibility feasibility = new LineFeasibility(board.row(0), List.of(3));
+        LineFeasibility feasibility = LineFeasibility.analyze(board.row(0), List.of(3));
 
         assertTrue(feasibility.canPlaceBlockAt(0, 0, 3));
     }
@@ -42,7 +42,7 @@ class LineFeasibilityTest {
         // length 4, clue [1,2]: zero slack, unique solution [F,E,F,F]
         Board board = new Board(1, 4);
 
-        LineFeasibility feasibility = new LineFeasibility(board.row(0), List.of(1, 2));
+        LineFeasibility feasibility = LineFeasibility.analyze(board.row(0), List.of(1, 2));
 
         // block 0 (length 1): only candidateStart 0 works
         assertTrue(feasibility.canPlaceBlockAt(0, 0, 1));
@@ -62,7 +62,7 @@ class LineFeasibilityTest {
         // (only position 3 ends up forced - see LineForcedCellSolverTest)
         Board board = new Board(1, 5);
 
-        LineFeasibility feasibility = new LineFeasibility(board.row(0), List.of(1, 2));
+        LineFeasibility feasibility = LineFeasibility.analyze(board.row(0), List.of(1, 2));
 
         // block 0 (length 1): candidateStart 0 and 1 work, 2 and 3 don't
         assertTrue(feasibility.canPlaceBlockAt(0, 0, 1));
@@ -82,7 +82,7 @@ class LineFeasibilityTest {
         Board board = new Board(1, 3);
         board.set(0, 0, Cell.FILLED);
 
-        LineFeasibility feasibility = new LineFeasibility(board.row(0), List.of(1));
+        LineFeasibility feasibility = LineFeasibility.analyze(board.row(0), List.of(1));
 
         assertTrue(feasibility.canPlaceBlockAt(0, 0, 1));
         assertFalse(feasibility.canPlaceBlockAt(0, 1, 1));

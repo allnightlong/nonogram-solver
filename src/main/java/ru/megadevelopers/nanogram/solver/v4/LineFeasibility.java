@@ -24,12 +24,17 @@ class LineFeasibility {
     private final FeasibilityTable prefixFeasibility;
     private final FeasibilityTable reversedPrefixFeasibility;
 
-    LineFeasibility(LineView line, List<Integer> blockLengths) {
+    private LineFeasibility(LineView line, List<Integer> blockLengths) {
         this.line = line;
         this.lineLength = line.length();
         this.blockCount = blockLengths.size();
         this.prefixFeasibility = computePrefixFeasibility(line, blockLengths);
         this.reversedPrefixFeasibility = computePrefixFeasibility(reverse(line), reversed(blockLengths));
+    }
+
+    /** Computes both feasibility tables for this line against these blocks - O(length x blocks) work. */
+    static LineFeasibility analyze(LineView line, List<Integer> blockLengths) {
+        return new LineFeasibility(line, blockLengths);
     }
 
     boolean isFullyFeasible() {

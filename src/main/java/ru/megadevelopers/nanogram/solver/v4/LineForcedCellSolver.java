@@ -22,7 +22,7 @@ class LineForcedCellSolver {
         int lineLength = line.length();
         int blockCount = blockLengths.size();
 
-        LineFeasibility feasibility = new LineFeasibility(line, blockLengths);
+        LineFeasibility feasibility = LineFeasibility.analyze(line, blockLengths);
         if (!feasibility.isFullyFeasible()) return null;
 
         Cell[] forced = new Cell[lineLength];
