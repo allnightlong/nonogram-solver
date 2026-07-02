@@ -11,14 +11,14 @@ import java.util.Arrays;
 /**
  * Steve Simpson's classic nonogram-solving algorithm: propagate row/column
  * constraints to a fixed point using a DP-based per-line forced-cell
- * computation (LineDpSolver) - never enumerating candidate placements - and
- * when that alone can't fully determine the puzzle, guess the most
- * constrained undetermined cell and recurse, backtracking on contradiction.
- * Shares no code with HybridSolver (v3): same overall shape, independently
- * implemented, to isolate whether DP-based line solving matters in
- * practice versus candidate-list intersection.
+ * computation (LineForcedCellSolver) - never enumerating candidate
+ * placements - and when that alone can't fully determine the puzzle, guess
+ * the most constrained undetermined cell and recurse, backtracking on
+ * contradiction. Shares no code with HybridSolver (v3): same overall
+ * shape, independently implemented, to isolate whether DP-based line
+ * solving matters in practice versus candidate-list intersection.
  */
-public class DpSolver implements Solver {
+public class DynamicProgrammingSolver implements Solver {
 
     private record GuessCell(int row, int column) {}
 
@@ -55,13 +55,13 @@ public class DpSolver implements Solver {
         do {
             changed = false;
             for (int row = 0; row < puzzle.height(); row++) {
-                Cell[] forced = LineDpSolver.determineForced(board[row], puzzle.rowClues().get(row));
+                Cell[] forced = LineForcedCellSolver.determineForced(board[row], puzzle.rowClues().get(row));
                 if (forced == null) return false;
                 if (apply(board[row], forced)) changed = true;
             }
             for (int column = 0; column < puzzle.width(); column++) {
                 Cell[] currentColumn = extractColumn(board, column);
-                Cell[] forced = LineDpSolver.determineForced(currentColumn, puzzle.columnClues().get(column));
+                Cell[] forced = LineForcedCellSolver.determineForced(currentColumn, puzzle.columnClues().get(column));
                 if (forced == null) return false;
                 if (applyColumn(board, column, forced)) changed = true;
             }

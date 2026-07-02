@@ -1,0 +1,172 @@
+package ru.megadevelopers.nanogram.solver.v4;
+
+import ru.megadevelopers.nanogram.model.Cell;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Determines, for a single line, which cells are forced FILLED or EMPTY
+ * given the clue and the line's current (possibly partially known) state -
+ * via two DP feasibility passes (leftmost-fit / rightmost-fit), never
+ * enumerating candidate placements. Steve Simpson's classic nonogram
+ * line-solving technique: cost is O(length x blocks), independent of how
+ * many valid placements exist.
+ */
+class LineForcedCellSolver {
+
+    /** Forced values per cell (NO_VALUE where still undetermined), or null if infeasible. */
+    static Cell[] determineForced(Cell[] line, List<Integer> clue) {
+        int[] blockLengths = clue.stream().filter(v -> v != 0).mapToInt(Integer::intValue).toArray();
+        int lineLength = line.length;
+        int blockCount = blockLengths.length;
+
+        boolean[][] prefixFeasibility = computePrefixFeasibility(line, blockLengths);
+        if (!prefixFeasibility[lineLength][blockCount]) return null;
+
+        Cell[] forced = new Cell[lineLength];
+        Arrays.fill(forced, Cell.NO_VALUE);
+
+        if (blockCount == 0) {
+            Arrays.fill(forced, Cell.EMPTY);
+            return forced;
+        }
+
+        boolean[][] reversedPrefixFeasibility =
+                computePrefixFeasibility(reverseLine(line), reverseBlockLengths(blockLengths));
+        boolean[] possiblyFilledCells = new boolean[lineLength];
+
+        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+            int blockLength = blockLengths[blockIndex];
+            int leftmostFeasibleStart = -1, rightmostFeasibleStart = -1;
+
+            for (int candidateStart = 0; candidateStart + blockLength <= lineLength; candidateStart++) {
+                if (canPlaceBlockAt(line, prefixFeasibility, reversedPrefixFeasibility,
+                        lineLength, blockCount, blockIndex, candidateStart, blockLength)) {
+                    if (leftmostFeasibleStart == -1) leftmostFeasibleStart = candidateStart;
+                    rightmostFeasibleStart = candidateStart;
+                }
+            }
+
+            for (int position = leftmostFeasibleStart; position < rightmostFeasibleStart + blockLength; position++) {
+                possiblyFilledCells[position] = true;
+            }
+            if (rightmostFeasibleStart < leftmostFeasibleStart + blockLength) {
+                for (int position = rightmostFeasibleStart; position < leftmostFeasibleStart + blockLength; position++) {
+                    forced[position] = Cell.FILLED;
+                }
+            }
+        }
+
+        for (int position = 0; position < lineLength; position++) {
+            if (!possiblyFilledCells[position]) forced[position] = Cell.EMPTY;
+        }
+
+        return forced;
+    }
+
+    private static boolean canPlaceBlockAt(Cell[] line, boolean[][] prefixFeasibility, boolean[][] reversedPrefixFeasibility,
+                                            int lineLength, int blockCount, int blockIndex, int candidateStart, int blockLength) {
+        if (!isPrefixFeasible(line, prefixFeasibility, candidateStart, blockIndex)) return false;
+        if (!isRangeCompatible(line, candidateStart, candidateStart + blockLength, Cell.FILLED)) return false;
+        return isSuffixFeasible(line, reversedPrefixFeasibility, lineLength, blockCount,
+                candidateStart + blockLength, blockIndex);
+    }
+
+    /** Can the blocks before {@code blockIndex} fit in the line before {@code candidateStart}? */
+    private static boolean isPrefixFeasible(Cell[] line, boolean[][] prefixFeasibility, int candidateStart, int blockIndex) {
+        if (blockIndex == 0) return prefixFeasibility[candidateStart][0];
+        return candidateStart >= 1
+                && isCompatible(line[candidateStart - 1], Cell.EMPTY)
+                && prefixFeasibility[candidateStart - 1][blockIndex];
+    }
+
+    /** Can the blocks after {@code blockIndex} fit in the line from {@code blockEnd} onward? */
+    private static boolean isSuffixFeasible(Cell[] line, boolean[][] reversedPrefixFeasibility,
+                                             int lineLength, int blockCount, int blockEnd, int blockIndex) {
+        if (blockIndex == blockCount - 1) {
+            return suffixFeasibleFromReversedTable(reversedPrefixFeasibility, lineLength, blockCount, blockEnd, blockCount);
+        }
+        return blockEnd < lineLength
+                && isCompatible(line[blockEnd], Cell.EMPTY)
+                && suffixFeasibleFromReversedTable(reversedPrefixFeasibility, lineLength, blockCount, blockEnd + 1, blockIndex + 1);
+    }
+
+    /**
+     * Looks up suffix feasibility using the prefix-feasibility table computed
+     * on the reversed line: a suffix starting at {@code originalPrefixLength}
+     * with {@code originalBlocksPlaced} blocks already placed corresponds to
+     * a prefix of the reversed line/blocks of the mirrored size.
+     */
+    private static boolean suffixFeasibleFromReversedTable(boolean[][] reversedPrefixFeasibility,
+                                                             int lineLength, int blockCount,
+                                                             int originalPrefixLength, int originalBlocksPlaced) {
+        return reversedPrefixFeasibility[lineLength - originalPrefixLength][blockCount - originalBlocksPlaced];
+    }
+
+    /**
+     * prefixFeasibility[prefixLength][blocksPlaced] = true iff the first
+     * blocksPlaced blocks can be placed within the first prefixLength cells
+     * of the line, consistent with any already-known cells. Two transitions
+     * per state: extend the gap by one cell, or end the next block exactly
+     * at the end of this prefix (with its mandatory single-cell gap before
+     * it, unless it's the first block).
+     */
+    private static boolean[][] computePrefixFeasibility(Cell[] line, int[] blockLengths) {
+        int lineLength = line.length;
+        int blockCount = blockLengths.length;
+        boolean[][] feasibilityTable = new boolean[lineLength + 1][blockCount + 1];
+        feasibilityTable[0][0] = true;
+
+        for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
+            feasibilityTable[prefixLength][0] =
+                    feasibilityTable[prefixLength - 1][0] && isCompatible(line[prefixLength - 1], Cell.EMPTY);
+        }
+
+        for (int blocksPlaced = 1; blocksPlaced <= blockCount; blocksPlaced++) {
+            int blockLength = blockLengths[blocksPlaced - 1];
+            for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
+                boolean canFit = feasibilityTable[prefixLength - 1][blocksPlaced]
+                        && isCompatible(line[prefixLength - 1], Cell.EMPTY);
+
+                if (!canFit && prefixLength >= blockLength) {
+                    int blockStart = prefixLength - blockLength;
+                    if (isRangeCompatible(line, blockStart, prefixLength, Cell.FILLED)) {
+                        if (blocksPlaced == 1) {
+                            canFit = feasibilityTable[blockStart][0];
+                        } else {
+                            canFit = blockStart >= 1
+                                    && isCompatible(line[blockStart - 1], Cell.EMPTY)
+                                    && feasibilityTable[blockStart - 1][blocksPlaced - 1];
+                        }
+                    }
+                }
+                feasibilityTable[prefixLength][blocksPlaced] = canFit;
+            }
+        }
+        return feasibilityTable;
+    }
+
+    private static boolean isRangeCompatible(Cell[] line, int from, int to, Cell desired) {
+        for (int position = from; position < to; position++) {
+            if (!isCompatible(line[position], desired)) return false;
+        }
+        return true;
+    }
+
+    private static boolean isCompatible(Cell cell, Cell desired) {
+        return cell == Cell.NO_VALUE || cell == desired;
+    }
+
+    private static Cell[] reverseLine(Cell[] line) {
+        Cell[] result = new Cell[line.length];
+        for (int i = 0; i < line.length; i++) result[i] = line[line.length - 1 - i];
+        return result;
+    }
+
+    private static int[] reverseBlockLengths(int[] blockLengths) {
+        int[] result = new int[blockLengths.length];
+        for (int i = 0; i < blockLengths.length; i++) result[i] = blockLengths[blockLengths.length - 1 - i];
+        return result;
+    }
+}

@@ -6,7 +6,7 @@ import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.solver.v1.PropagationSolver;
 import ru.megadevelopers.nanogram.solver.v2.BacktrackingSolver;
 import ru.megadevelopers.nanogram.solver.v3.HybridSolver;
-import ru.megadevelopers.nanogram.solver.v4.DpSolver;
+import ru.megadevelopers.nanogram.solver.v4.DynamicProgrammingSolver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +36,7 @@ class SolverAgreementTest {
         SolveResult propagationResult = new PropagationSolver().solve(puzzle);
         SolveResult backtrackingResult = new BacktrackingSolver().solve(puzzle);
         SolveResult hybridResult = new HybridSolver().solve(puzzle);
-        SolveResult dpResult = new DpSolver().solve(puzzle);
+        SolveResult dpResult = new DynamicProgrammingSolver().solve(puzzle);
 
         assertInstanceOf(SolveResult.Solved.class, propagationResult);
         assertInstanceOf(SolveResult.Solved.class, backtrackingResult);

@@ -8,9 +8,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-class DpSolverTest {
+class DynamicProgrammingSolverTest {
 
-    private final DpSolver solver = new DpSolver();
+    private final DynamicProgrammingSolver solver = new DynamicProgrammingSolver();
 
     @Test
     void solvesSimplePuzzle() {
