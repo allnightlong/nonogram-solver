@@ -11,6 +11,14 @@ import java.util.List;
  */
 public record Clue(List<Integer> raw) {
 
+    public Clue {
+        for (int value : raw) {
+            if (value < 0) {
+                throw new IllegalArgumentException("Clue block length must be non-negative, got: " + value);
+            }
+        }
+    }
+
     public static Clue of(Integer... blocks) {
         return new Clue(List.of(blocks));
     }
