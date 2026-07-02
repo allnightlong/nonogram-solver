@@ -3,6 +3,9 @@ package ru.megadevelopers.nanogram;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
+import ru.megadevelopers.nanogram.solver.HybridSolver;
+import ru.megadevelopers.nanogram.solver.Puzzle;
+import ru.megadevelopers.nanogram.solver.SolveResult;
 
 import java.net.URL;
 import java.time.Duration;
@@ -22,12 +25,20 @@ public class StarterCli {
         int height = root.get("height").asInt();
 
         NanogramBoard nanogram = new NanogramBoard(dataTop, dataLeft, width, height);
+        Puzzle puzzle = new Puzzle(dataLeft, dataTop, width, height);
 
         long start = System.nanoTime();
-        nanogram.solve();
+        SolveResult result = new HybridSolver().solve(puzzle, (r, c, v) -> nanogram.setValue(r, c, v));
         System.out.println("computed in " + Duration.ofNanos(System.nanoTime() - start));
 
-        nanogram.print(true);
+        switch (result) {
+            case SolveResult.Solved ignored -> nanogram.print(true);
+            case SolveResult.Ambiguous ignored -> {
+                System.out.println("Ambiguous (unexpected for hybrid solver)");
+                nanogram.print(true);
+            }
+            case SolveResult.NoSolution ignored -> System.out.println("No solution");
+        }
     }
 
     private static List<List<Integer>> parseClueArray(JsonNode array) {

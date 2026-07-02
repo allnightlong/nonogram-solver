@@ -1,7 +1,6 @@
 package ru.megadevelopers.nanogram.model;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.List;
 
 public class NanogramBoard {
@@ -10,8 +9,6 @@ public class NanogramBoard {
     public interface CellChangeListener {
         void onCellChanged(int row, int column, Cell value);
     }
-
-    static final int DELAY = 100;
 
     public final List<List<Integer>> top;
     public final List<List<Integer>> left;
@@ -87,40 +84,6 @@ public class NanogramBoard {
 
     private static char toChar(int input) {
         return input != 0 ? Character.forDigit(input, 35) : ' ';
-    }
-
-    public boolean solve() throws InterruptedException {
-        Thread.sleep(DELAY);
-        for (int row = 0; row < height; row++) {
-            for (int column = 0; column < width; column++) {
-                if (getValue(row, column) == Cell.NO_VALUE) {
-                    setValue(row, column, Cell.FILLED);
-                    if (isValid(row, column) && solve()) return true;
-
-                    setValue(row, column, Cell.EMPTY);
-                    if (isValid(row, column) && solve()) return true;
-
-                    setValue(row, column, Cell.NO_VALUE);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean isValid(int row, int column) {
-        return isValidRow(row) && isValidColumn(column);
-    }
-
-    private boolean isValidRow(int row) {
-        List<BitSet> candidates = Line.candidates(left.get(row), width);
-        return Line.isValid(Arrays.asList(board[row]), candidates);
-    }
-
-    private boolean isValidColumn(int column) {
-        List<BitSet> candidates = Line.candidates(top.get(column), height);
-        List<Cell> currentLine = Arrays.stream(board).map(r -> r[column]).toList();
-        return Line.isValid(currentLine, candidates);
     }
 
     public void setOnChange(CellChangeListener onChange) {

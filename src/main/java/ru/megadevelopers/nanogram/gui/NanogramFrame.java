@@ -2,6 +2,8 @@ package ru.megadevelopers.nanogram.gui;
 
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
+import ru.megadevelopers.nanogram.solver.HybridSolver;
+import ru.megadevelopers.nanogram.solver.Puzzle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,13 +89,10 @@ public class NanogramFrame extends JFrame {
     }
 
     private void solve() {
+        Puzzle puzzle = new Puzzle(nanogramBoard.left, nanogramBoard.top, nanogramBoard.width, nanogramBoard.height);
         CompletableFuture.runAsync(() -> {
-            try {
-                nanogramBoard.solve();
-                fillFields();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            new HybridSolver().solve(puzzle, nanogramBoard::setValue);
+            fillFields();
         });
     }
 
