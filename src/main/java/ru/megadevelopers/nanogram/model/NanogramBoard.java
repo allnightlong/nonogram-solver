@@ -29,12 +29,12 @@ public class NanogramBoard {
 
     public void print(boolean printBoard) {
         printTop(leftOffset(), topOffset());
-        printLeft(printBoard);
+        printLeft(leftOffset(), printBoard);
         System.out.println();
     }
 
     public int topOffset() {
-        return top.stream().mapToInt(clue -> clue.raw().size()).max().orElse(0);
+        return top.stream().mapToInt(clue -> clue.blockLengths().size()).max().orElse(0);
     }
 
     public int getHeightWithOffset() {
@@ -42,7 +42,7 @@ public class NanogramBoard {
     }
 
     public int leftOffset() {
-        return left.stream().mapToInt(clue -> clue.raw().size()).max().orElse(0);
+        return left.stream().mapToInt(clue -> clue.blockLengths().size()).max().orElse(0);
     }
 
     public int getWidthWithOffset() {
@@ -62,15 +62,19 @@ public class NanogramBoard {
         for (int row = 0; row < topOffset; row++) {
             for (int i = 0; i < leftOffset; i++) System.out.print(' ');
             for (int column = 0; column < top.size(); column++) {
-                System.out.print(toChar(top.get(column).raw().get(row)));
+                List<Integer> blockLengths = top.get(column).blockLengths();
+                int index = row - topOffset + blockLengths.size();
+                System.out.print(index >= 0 ? toChar(blockLengths.get(index)) : ' ');
             }
             System.out.println();
         }
     }
 
-    private void printLeft(boolean printBoard) {
+    private void printLeft(int leftOffset, boolean printBoard) {
         for (int row = 0; row < left.size(); row++) {
-            for (int value : left.get(row).raw()) {
+            List<Integer> blockLengths = left.get(row).blockLengths();
+            for (int i = 0; i < leftOffset - blockLengths.size(); i++) System.out.print(' ');
+            for (int value : blockLengths) {
                 System.out.print(toChar(value));
             }
             if (printBoard) {

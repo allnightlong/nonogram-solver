@@ -45,11 +45,13 @@ public class StarterCli {
     private static List<Clue> parseClueArray(JsonNode array) {
         List<Clue> result = new ArrayList<>();
         for (JsonNode row : array) {
-            List<Integer> raw = new ArrayList<>();
+            List<Integer> blockLengths = new ArrayList<>();
             for (JsonNode element : row) {
-                raw.add(element.isNumber() ? element.asInt() : 0);
+                if (element.isNumber() && element.asInt() != 0) {
+                    blockLengths.add(element.asInt());
+                }
             }
-            result.add(new Clue(raw));
+            result.add(new Clue(blockLengths));
         }
         return result;
     }

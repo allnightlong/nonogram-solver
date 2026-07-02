@@ -10,17 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ClueTest {
 
     @Test
-    void blockLengthsFiltersOutZeroPlaceholders() {
-        Clue clue = new Clue(List.of(0, 3));
+    void blockLengthsAreExposedAsGiven() {
+        Clue clue = new Clue(List.of(2, 1));
 
-        assertEquals(List.of(3), clue.blockLengths());
-    }
-
-    @Test
-    void blockLengthsOfABlankClueIsEmpty() {
-        Clue clue = new Clue(List.of(0));
-
-        assertEquals(List.of(), clue.blockLengths());
+        assertEquals(List.of(2, 1), clue.blockLengths());
     }
 
     @Test
@@ -29,7 +22,13 @@ class ClueTest {
     }
 
     @Test
-    void ofFactoryRejectsNegativeValues() {
+    void constructorRejectsZero() {
+        assertThrows(IllegalArgumentException.class, () -> new Clue(List.of(0, 3)));
+    }
+
+    @Test
+    void ofFactoryRejectsNonPositiveValues() {
+        assertThrows(IllegalArgumentException.class, () -> Clue.of(2, 0));
         assertThrows(IllegalArgumentException.class, () -> Clue.of(2, -1));
     }
 }

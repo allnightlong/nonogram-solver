@@ -46,6 +46,16 @@ class LineForcedCellSolverTest {
         assertArrayEquals(new Cell[]{Cell.FILLED, Cell.EMPTY, Cell.FILLED, Cell.FILLED}, forced);
     }
 
+
+    @Test
+    void partiallySolvesTwoBlocksWithSlack() {
+        Board board = new Board(1, 5);
+
+        Cell[] forced = LineForcedCellSolver.determineForced(board.row(0), Clue.of(1, 2));
+
+        assertArrayEquals(new Cell[]{Cell.NO_VALUE, Cell.NO_VALUE, Cell.NO_VALUE, Cell.FILLED, Cell.NO_VALUE}, forced);
+    }
+
     @Test
     void returnsNullWhenABlockCannotFitInTheLine() {
         Board board = new Board(1, 1);
