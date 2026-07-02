@@ -21,8 +21,8 @@ class LineForcedCellSolver {
         int lineLength = line.length();
         int blockCount = blockLengths.length;
 
-        boolean[][] prefixFeasibility = computePrefixFeasibility(line, blockLengths);
-        if (!prefixFeasibility[lineLength][blockCount]) return null;
+        FeasibilityTable prefixFeasibility = computePrefixFeasibility(line, blockLengths);
+        if (!prefixFeasibility.isFeasible(lineLength, blockCount)) return null;
 
         Cell[] forced = new Cell[lineLength];
         Arrays.fill(forced, Cell.NO_VALUE);
@@ -32,7 +32,7 @@ class LineForcedCellSolver {
             return forced;
         }
 
-        boolean[][] reversedPrefixFeasibility =
+        FeasibilityTable reversedPrefixFeasibility =
                 computePrefixFeasibility(reverse(line), reverseBlockLengths(blockLengths));
         boolean[] possiblyFilledCells = new boolean[lineLength];
 
@@ -65,7 +65,7 @@ class LineForcedCellSolver {
         return forced;
     }
 
-    private static boolean canPlaceBlockAt(LineView line, boolean[][] prefixFeasibility, boolean[][] reversedPrefixFeasibility,
+    private static boolean canPlaceBlockAt(LineView line, FeasibilityTable prefixFeasibility, FeasibilityTable reversedPrefixFeasibility,
                                             int lineLength, int blockCount, int blockIndex, int candidateStart, int blockLength) {
         if (!isPrefixFeasible(line, prefixFeasibility, candidateStart, blockIndex)) return false;
         if (!isRangeCompatible(line, candidateStart, candidateStart + blockLength, Cell.FILLED)) return false;
@@ -74,15 +74,15 @@ class LineForcedCellSolver {
     }
 
     /** Can the blocks before {@code blockIndex} fit in the line before {@code candidateStart}? */
-    private static boolean isPrefixFeasible(LineView line, boolean[][] prefixFeasibility, int candidateStart, int blockIndex) {
-        if (blockIndex == 0) return prefixFeasibility[candidateStart][0];
+    private static boolean isPrefixFeasible(LineView line, FeasibilityTable prefixFeasibility, int candidateStart, int blockIndex) {
+        if (blockIndex == 0) return prefixFeasibility.isFeasible(candidateStart, 0);
         return candidateStart >= 1
                 && isCompatible(line.get(candidateStart - 1), Cell.EMPTY)
-                && prefixFeasibility[candidateStart - 1][blockIndex];
+                && prefixFeasibility.isFeasible(candidateStart - 1, blockIndex);
     }
 
     /** Can the blocks after {@code blockIndex} fit in the line from {@code blockEnd} onward? */
-    private static boolean isSuffixFeasible(LineView line, boolean[][] reversedPrefixFeasibility,
+    private static boolean isSuffixFeasible(LineView line, FeasibilityTable reversedPrefixFeasibility,
                                              int lineLength, int blockCount, int blockEnd, int blockIndex) {
         if (blockIndex == blockCount - 1) {
             return suffixFeasibleFromReversedTable(reversedPrefixFeasibility, lineLength, blockCount, blockEnd, blockCount);
@@ -98,10 +98,10 @@ class LineForcedCellSolver {
      * with {@code originalBlocksPlaced} blocks already placed corresponds to
      * a prefix of the reversed line/blocks of the mirrored size.
      */
-    private static boolean suffixFeasibleFromReversedTable(boolean[][] reversedPrefixFeasibility,
+    private static boolean suffixFeasibleFromReversedTable(FeasibilityTable reversedPrefixFeasibility,
                                                              int lineLength, int blockCount,
                                                              int originalPrefixLength, int originalBlocksPlaced) {
-        return reversedPrefixFeasibility[lineLength - originalPrefixLength][blockCount - originalBlocksPlaced];
+        return reversedPrefixFeasibility.isFeasible(lineLength - originalPrefixLength, blockCount - originalBlocksPlaced);
     }
 
     /**
@@ -112,36 +112,36 @@ class LineForcedCellSolver {
      * at the end of this prefix (with its mandatory single-cell gap before
      * it, unless it's the first block).
      */
-    private static boolean[][] computePrefixFeasibility(LineView line, int[] blockLengths) {
+    private static FeasibilityTable computePrefixFeasibility(LineView line, int[] blockLengths) {
         int lineLength = line.length();
         int blockCount = blockLengths.length;
-        boolean[][] feasibilityTable = new boolean[lineLength + 1][blockCount + 1];
-        feasibilityTable[0][0] = true;
+        FeasibilityTable feasibilityTable = new FeasibilityTable(lineLength, blockCount);
+        feasibilityTable.markFeasible(0, 0, true);
 
         for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
-            feasibilityTable[prefixLength][0] =
-                    feasibilityTable[prefixLength - 1][0] && isCompatible(line.get(prefixLength - 1), Cell.EMPTY);
+            feasibilityTable.markFeasible(prefixLength, 0,
+                    feasibilityTable.isFeasible(prefixLength - 1, 0) && isCompatible(line.get(prefixLength - 1), Cell.EMPTY));
         }
 
         for (int blocksPlaced = 1; blocksPlaced <= blockCount; blocksPlaced++) {
             int blockLength = blockLengths[blocksPlaced - 1];
             for (int prefixLength = 1; prefixLength <= lineLength; prefixLength++) {
-                boolean canFit = feasibilityTable[prefixLength - 1][blocksPlaced]
+                boolean canFit = feasibilityTable.isFeasible(prefixLength - 1, blocksPlaced)
                         && isCompatible(line.get(prefixLength - 1), Cell.EMPTY);
 
                 if (!canFit && prefixLength >= blockLength) {
                     int blockStart = prefixLength - blockLength;
                     if (isRangeCompatible(line, blockStart, prefixLength, Cell.FILLED)) {
                         if (blocksPlaced == 1) {
-                            canFit = feasibilityTable[blockStart][0];
+                            canFit = feasibilityTable.isFeasible(blockStart, 0);
                         } else {
                             canFit = blockStart >= 1
                                     && isCompatible(line.get(blockStart - 1), Cell.EMPTY)
-                                    && feasibilityTable[blockStart - 1][blocksPlaced - 1];
+                                    && feasibilityTable.isFeasible(blockStart - 1, blocksPlaced - 1);
                         }
                     }
                 }
-                feasibilityTable[prefixLength][blocksPlaced] = canFit;
+                feasibilityTable.markFeasible(prefixLength, blocksPlaced, canFit);
             }
         }
         return feasibilityTable;
