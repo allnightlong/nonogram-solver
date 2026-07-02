@@ -44,13 +44,13 @@ class LineFeasibility {
     }
 
     boolean isFeasibleAt(Block block, int blockStart) {
-        if (!isPrefixFeasible(blockStart, block.index())) return false;
+        if (!isFeasibleBefore(blockStart, block.index())) return false;
         if (!isRangeCompatible(line, blockStart, blockStart + block.length(), Cell.FILLED)) return false;
-        return isSuffixFeasible(blockStart + block.length(), block.index());
+        return isFeasibleAfter(blockStart + block.length(), block.index());
     }
 
     /** Can the blocks before {@code blockIndex} fit in the line before {@code blockStart}? */
-    private boolean isPrefixFeasible(int blockStart, int blockIndex) {
+    private boolean isFeasibleBefore(int blockStart, int blockIndex) {
         if (blockIndex == 0) return prefixFeasibility.isFeasible(blockStart, 0);
         return blockStart >= 1
                 && isCompatible(line.get(blockStart - 1), Cell.EMPTY)
@@ -58,24 +58,26 @@ class LineFeasibility {
     }
 
     /** Can the blocks after {@code blockIndex} fit in the line from {@code blockEnd} onward? */
-    private boolean isSuffixFeasible(int blockEnd, int blockIndex) {
+    private boolean isFeasibleAfter(int blockEnd, int blockIndex) {
         if (blockIndex == blockCount - 1) {
-            return suffixFeasibleFromReversedTable(blockEnd, blockCount);
+            return isFeasibleAfterViaReversedTable(blockEnd, blockCount);
         }
         return blockEnd < lineLength
                 && isCompatible(line.get(blockEnd), Cell.EMPTY)
-                && suffixFeasibleFromReversedTable(blockEnd + 1, blockIndex + 1);
+                && isFeasibleAfterViaReversedTable(blockEnd + 1, blockIndex + 1);
     }
 
     /**
-     * Looks up suffix feasibility using the prefix-feasibility table
-     * computed on the reversed line: a suffix starting at
-     * {@code originalPrefixLength} with {@code originalBlocksPlaced}
-     * blocks already placed corresponds to a prefix of the reversed
-     * line/blocks of the mirrored size.
+     * Answers "can the blocks after {@code originalBlocksPlaced} still fit
+     * in the line after {@code originalPosition}" by mirroring the question
+     * onto the table computed on the reversed line and reversed block
+     * order: everything after a point in the original line is everything
+     * before the mirrored point in the reversed line, and the blocks still
+     * owed there are exactly the ones this table counts as "reversed blocks
+     * placed."
      */
-    private boolean suffixFeasibleFromReversedTable(int originalPrefixLength, int originalBlocksPlaced) {
-        return reversedPrefixFeasibility.isFeasible(lineLength - originalPrefixLength, blockCount - originalBlocksPlaced);
+    private boolean isFeasibleAfterViaReversedTable(int originalPosition, int originalBlocksPlaced) {
+        return reversedPrefixFeasibility.isFeasible(lineLength - originalPosition, blockCount - originalBlocksPlaced);
     }
 
     /**
