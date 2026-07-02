@@ -27,9 +27,8 @@ public class DynamicProgrammingSolver implements Solver {
         Board result = solve(board, puzzle);
         if (result == null) return new SolveResult.NoSolution();
 
-        Cell[][] solved = result.snapshot();
-        emit(solved, listener);
-        return new SolveResult.Solved(solved);
+        result.emitTo(listener);
+        return new SolveResult.Solved(result.snapshot());
     }
 
     private Board solve(Board board, Puzzle puzzle) {
@@ -56,27 +55,16 @@ public class DynamicProgrammingSolver implements Solver {
                 LineView line = board.row(row);
                 Cell[] forced = LineForcedCellSolver.determineForced(line, puzzle.rowClues().get(row));
                 if (forced == null) return false;
-                if (apply(line, forced)) changed = true;
+                if (line.applyForced(forced)) changed = true;
             }
             for (int column = 0; column < board.columnCount(); column++) {
                 LineView line = board.column(column);
                 Cell[] forced = LineForcedCellSolver.determineForced(line, puzzle.columnClues().get(column));
                 if (forced == null) return false;
-                if (apply(line, forced)) changed = true;
+                if (line.applyForced(forced)) changed = true;
             }
         } while (changed);
         return true;
-    }
-
-    private static boolean apply(LineView line, Cell[] forced) {
-        boolean changed = false;
-        for (int i = 0; i < forced.length; i++) {
-            if (forced[i] != Cell.NO_VALUE && line.get(i) == Cell.NO_VALUE) {
-                line.set(i, forced[i]);
-                changed = true;
-            }
-        }
-        return changed;
     }
 
     /**
@@ -88,7 +76,7 @@ public class DynamicProgrammingSolver implements Solver {
     private static GuessCell findMostConstrainedCell(Board board, Puzzle puzzle) {
         int bestRow = -1, bestRowCount = Integer.MAX_VALUE;
         for (int row = 0; row < board.rowsCount(); row++) {
-            int count = countUndetermined(board.row(row));
+            int count = board.row(row).countUndetermined();
             if (count > 0 && count < bestRowCount) {
                 bestRow = row;
                 bestRowCount = count;
@@ -97,7 +85,7 @@ public class DynamicProgrammingSolver implements Solver {
 
         int bestColumn = -1, bestColumnCount = Integer.MAX_VALUE;
         for (int column = 0; column < board.columnCount(); column++) {
-            int count = countUndetermined(board.column(column));
+            int count = board.column(column).countUndetermined();
             if (count > 0 && count < bestColumnCount) {
                 bestColumn = column;
                 bestColumnCount = count;
@@ -105,31 +93,8 @@ public class DynamicProgrammingSolver implements Solver {
         }
 
         if (bestRow >= 0 && (bestColumn < 0 || bestRowCount <= bestColumnCount)) {
-            return new GuessCell(bestRow, firstUndetermined(board.row(bestRow)));
+            return new GuessCell(bestRow, board.row(bestRow).firstUndetermined());
         }
-        return new GuessCell(firstUndetermined(board.column(bestColumn)), bestColumn);
-    }
-
-    private static int countUndetermined(LineView line) {
-        int count = 0;
-        for (int i = 0; i < line.length(); i++) {
-            if (line.get(i) == Cell.NO_VALUE) count++;
-        }
-        return count;
-    }
-
-    private static int firstUndetermined(LineView line) {
-        for (int i = 0; i < line.length(); i++) {
-            if (line.get(i) == Cell.NO_VALUE) return i;
-        }
-        throw new IllegalStateException("line has no undetermined cell");
-    }
-
-    private static void emit(Cell[][] board, CellListener listener) {
-        for (int row = 0; row < board.length; row++) {
-            for (int column = 0; column < board[row].length; column++) {
-                listener.onCellChanged(row, column, board[row][column]);
-            }
-        }
+        return new GuessCell(board.column(bestColumn).firstUndetermined(), bestColumn);
     }
 }

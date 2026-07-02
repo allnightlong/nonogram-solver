@@ -29,7 +29,7 @@ class LineFeasibility {
         this.lineLength = line.length();
         this.blockCount = blockLengths.size();
         this.prefixFeasibility = computePrefixFeasibility(line, blockLengths);
-        this.reversedPrefixFeasibility = computePrefixFeasibility(reverse(line), reversed(blockLengths));
+        this.reversedPrefixFeasibility = computePrefixFeasibility(line.reversed(), reverseBlockLengths(blockLengths));
     }
 
     /** Computes both feasibility tables for this line against these blocks - O(length x blocks) work. */
@@ -130,23 +130,7 @@ class LineFeasibility {
         return cell == Cell.NO_VALUE || cell == desired;
     }
 
-    private static LineView reverse(LineView line) {
-        return new LineView() {
-            public int length() {
-                return line.length();
-            }
-
-            public Cell get(int index) {
-                return line.get(line.length() - 1 - index);
-            }
-
-            public void set(int index, Cell value) {
-                line.set(line.length() - 1 - index, value);
-            }
-        };
-    }
-
-    private static List<Integer> reversed(List<Integer> blockLengths) {
+    private static List<Integer> reverseBlockLengths(List<Integer> blockLengths) {
         List<Integer> result = new ArrayList<>(blockLengths);
         Collections.reverse(result);
         return result;

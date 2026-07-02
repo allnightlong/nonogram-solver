@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import ru.megadevelopers.nanogram.solver.CellListener;
 
 import java.util.Arrays;
 
@@ -87,5 +88,13 @@ class Board {
             }
         }
         return true;
+    }
+
+    void emitTo(CellListener listener) {
+        for (int row = 0; row < cells.length; row++) {
+            for (int column = 0; column < cells[row].length; column++) {
+                listener.onCellChanged(row, column, cells[row][column]);
+            }
+        }
     }
 }
