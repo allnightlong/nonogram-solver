@@ -1,6 +1,8 @@
-package ru.megadevelopers.nanogram.solver;
+package ru.megadevelopers.nanogram.solver.v1;
 
 import org.junit.jupiter.api.Test;
+import ru.megadevelopers.nanogram.solver.Puzzle;
+import ru.megadevelopers.nanogram.solver.SolveResult;
 
 import java.util.List;
 

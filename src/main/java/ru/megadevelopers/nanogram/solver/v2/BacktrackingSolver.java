@@ -1,7 +1,11 @@
-package ru.megadevelopers.nanogram.solver;
+package ru.megadevelopers.nanogram.solver.v2;
 
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.Line;
+import ru.megadevelopers.nanogram.solver.CellListener;
+import ru.megadevelopers.nanogram.solver.Puzzle;
+import ru.megadevelopers.nanogram.solver.SolveResult;
+import ru.megadevelopers.nanogram.solver.Solver;
 
 import java.util.Arrays;
 import java.util.BitSet;

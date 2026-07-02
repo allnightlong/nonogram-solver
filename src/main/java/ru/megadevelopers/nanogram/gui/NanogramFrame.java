@@ -2,7 +2,7 @@ package ru.megadevelopers.nanogram.gui;
 
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
-import ru.megadevelopers.nanogram.solver.HybridSolver;
+import ru.megadevelopers.nanogram.solver.v3.HybridSolver;
 import ru.megadevelopers.nanogram.solver.Puzzle;
 
 import javax.swing.*;

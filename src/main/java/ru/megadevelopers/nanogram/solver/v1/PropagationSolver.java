@@ -1,6 +1,11 @@
-package ru.megadevelopers.nanogram.solver;
+package ru.megadevelopers.nanogram.solver.v1;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import ru.megadevelopers.nanogram.solver.CellListener;
+import ru.megadevelopers.nanogram.solver.Puzzle;
+import ru.megadevelopers.nanogram.solver.SolveResult;
+import ru.megadevelopers.nanogram.solver.Solver;
+import ru.megadevelopers.nanogram.solver.support.LineConstraintPropagator;
 
 /**
  * Pure constraint propagation: narrows row/column candidates against each

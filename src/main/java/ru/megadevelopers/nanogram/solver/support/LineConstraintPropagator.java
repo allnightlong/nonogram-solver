@@ -1,28 +1,29 @@
-package ru.megadevelopers.nanogram.solver;
+package ru.megadevelopers.nanogram.solver.support;
 
 import ru.megadevelopers.nanogram.model.Cell;
 import ru.megadevelopers.nanogram.model.Line;
+import ru.megadevelopers.nanogram.solver.Puzzle;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 /**
- * Row/column constraint propagation shared by PropagationSolver and HybridSolver.
- * Tracks, per row and per column, the set of candidate placements still
- * consistent with every other line's candidates, and narrows those sets
- * until a fixed point (or a contradiction) is reached.
+ * Row/column constraint propagation shared by v1's PropagationSolver and
+ * v3's HybridSolver. Tracks, per row and per column, the set of candidate
+ * placements still consistent with every other line's candidates, and
+ * narrows those sets until a fixed point (or a contradiction) is reached.
  */
-class LineConstraintPropagator {
+public class LineConstraintPropagator {
 
-    record GuessCell(int row, int column) {}
+    public record GuessCell(int row, int column) {}
 
     private final int width;
     private final int height;
     private final List<List<BitSet>> rowCandidates;
     private final List<List<BitSet>> columnCandidates;
 
-    LineConstraintPropagator(Puzzle puzzle) {
+    public LineConstraintPropagator(Puzzle puzzle) {
         this.width = puzzle.width();
         this.height = puzzle.height();
         this.rowCandidates = new ArrayList<>();
@@ -43,12 +44,12 @@ class LineConstraintPropagator {
         this.columnCandidates = deepCopy(columnCandidates);
     }
 
-    LineConstraintPropagator copy() {
+    public LineConstraintPropagator copy() {
         return new LineConstraintPropagator(width, height, rowCandidates, columnCandidates);
     }
 
     /** Propagates constraints to a fixed point. Returns false on contradiction (no solution). */
-    boolean propagateToFixedPoint() {
+    public boolean propagateToFixedPoint() {
         int changed;
         do {
             changed = reduceMutual();
@@ -57,12 +58,12 @@ class LineConstraintPropagator {
         return true;
     }
 
-    boolean isSolved() {
+    public boolean isSolved() {
         return rowCandidates.stream().allMatch(c -> c.size() == 1)
                 && columnCandidates.stream().allMatch(c -> c.size() == 1);
     }
 
-    Cell[][] extractBoard() {
+    public Cell[][] extractBoard() {
         Cell[][] board = new Cell[height][width];
         for (int row = 0; row < height; row++) {
             for (int column = 0; column < width; column++) {
@@ -78,7 +79,7 @@ class LineConstraintPropagator {
      * increasing index) - the standard "most constrained variable" choice
      * for the next guess.
      */
-    GuessCell findMostConstrainedCell() {
+    public GuessCell findMostConstrainedCell() {
         int bestRow = -1, bestRowSize = Integer.MAX_VALUE;
         for (int row = 0; row < rowCandidates.size(); row++) {
             int size = rowCandidates.get(row).size();
@@ -104,7 +105,7 @@ class LineConstraintPropagator {
     }
 
     /** Restricts the given cell to the given value for a guess. Returns false if that's an immediate contradiction. */
-    boolean restrictCell(GuessCell guess, boolean filled) {
+    public boolean restrictCell(GuessCell guess, boolean filled) {
         List<BitSet> candidates = rowCandidates.get(guess.row());
         candidates.removeIf(candidate -> candidate.get(guess.column()) != filled);
         return !candidates.isEmpty();

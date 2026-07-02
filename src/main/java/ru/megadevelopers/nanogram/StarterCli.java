@@ -3,7 +3,7 @@ package ru.megadevelopers.nanogram;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
-import ru.megadevelopers.nanogram.solver.HybridSolver;
+import ru.megadevelopers.nanogram.solver.v3.HybridSolver;
 import ru.megadevelopers.nanogram.solver.Puzzle;
 import ru.megadevelopers.nanogram.solver.SolveResult;
 

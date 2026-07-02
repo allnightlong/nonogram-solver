@@ -1,6 +1,11 @@
-package ru.megadevelopers.nanogram.solver;
+package ru.megadevelopers.nanogram.solver.v3;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import ru.megadevelopers.nanogram.solver.CellListener;
+import ru.megadevelopers.nanogram.solver.Puzzle;
+import ru.megadevelopers.nanogram.solver.SolveResult;
+import ru.megadevelopers.nanogram.solver.Solver;
+import ru.megadevelopers.nanogram.solver.support.LineConstraintPropagator;
 
 /**
  * The conventional nonogram-solving algorithm: propagate row/column
