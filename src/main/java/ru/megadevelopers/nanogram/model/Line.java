@@ -6,9 +6,6 @@ import java.util.List;
 
 public class Line {
 
-    private static final char EMPTY_CHAR = '0';
-    private static final char FILLED_CHAR = '1';
-
     public static boolean isValid(List<Cell> line, List<BitSet> candidates) {
         return candidates.stream().anyMatch(c -> isValid(line, c));
     }
@@ -23,35 +20,38 @@ public class Line {
     }
 
     public static List<BitSet> candidates(List<Integer> clues, int length) {
-        int totalFilled = clues.stream().mapToInt(Integer::intValue).sum();
-        List<String> blocks = clues.stream()
-                .filter(v -> v != 0)
-                .map(v -> String.valueOf(FILLED_CHAR).repeat(v))
-                .toList();
-        return generateSequences(blocks, length - totalFilled + 1).stream()
-                .map(s -> fromString(s.substring(1)))
-                .toList();
+        List<Integer> blocks = clues.stream().filter(v -> v != 0).toList();
+        int totalFilled = blocks.stream().mapToInt(Integer::intValue).sum();
+        int slack = length - totalFilled - Math.max(blocks.size() - 1, 0);
+
+        List<BitSet> result = new ArrayList<>();
+        place(blocks, 0, slack, 0, new BitSet(length), result);
+        return result;
     }
 
-    static List<String> generateSequences(List<String> ones, int numZeros) {
-        if (ones.isEmpty()) {
-            return List.of(String.valueOf(EMPTY_CHAR).repeat(numZeros));
+    /**
+     * Places each remaining block at every valid offset, sharing one mutable
+     * BitSet across the whole search (set the block's bits, recurse, clear
+     * them again) so each output candidate costs exactly one clone - gaps
+     * are free since a BitSet already starts all-clear, and there's no
+     * intermediate String representation to build or re-parse.
+     */
+    private static void place(List<Integer> blocks, int blockIndex, int remainingSlack,
+                               int position, BitSet current, List<BitSet> result) {
+        if (blockIndex == blocks.size()) {
+            result.add((BitSet) current.clone());
+            return;
         }
-        List<String> sequences = new ArrayList<>();
-        for (int x = 1; x < numZeros - ones.size() + 2; x++) {
-            for (String tail : generateSequences(ones.subList(1, ones.size()), numZeros - x)) {
-                sequences.add(String.valueOf(EMPTY_CHAR).repeat(x) + ones.get(0) + tail);
-            }
-        }
-        return sequences;
-    }
 
-    private static BitSet fromString(String binary) {
-        BitSet set = new BitSet(binary.length());
-        for (int i = 0; i < binary.length(); i++) {
-            if (binary.charAt(i) == FILLED_CHAR) set.set(i);
+        int minGap = blockIndex == 0 ? 0 : 1;
+        int blockLength = blocks.get(blockIndex);
+
+        for (int extra = 0; extra <= remainingSlack; extra++) {
+            int start = position + minGap + extra;
+            current.set(start, start + blockLength);
+            place(blocks, blockIndex + 1, remainingSlack - extra, start + blockLength, current, result);
+            current.clear(start, start + blockLength);
         }
-        return set;
     }
 
     static List<BitSet> bitSetList(List<List<Integer>> source) {
