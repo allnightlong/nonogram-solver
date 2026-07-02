@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
 import org.junit.jupiter.api.Test;
+import ru.megadevelopers.nanogram.model.Clue;
 import ru.megadevelopers.nanogram.solver.Puzzle;
 import ru.megadevelopers.nanogram.solver.SolveResult;
 
@@ -15,8 +16,8 @@ class DynamicProgrammingSolverTest {
     @Test
     void solvesSimplePuzzle() {
         Puzzle puzzle = new Puzzle(
-                List.of(List.of(3), List.of(3), List.of(3)),
-                List.of(List.of(3), List.of(3), List.of(3)),
+                List.of(Clue.of(3), Clue.of(3), Clue.of(3)),
+                List.of(Clue.of(3), Clue.of(3), Clue.of(3)),
                 3, 3);
 
         assertInstanceOf(SolveResult.Solved.class, solver.solve(puzzle));
@@ -25,8 +26,8 @@ class DynamicProgrammingSolverTest {
     @Test
     void solvesPuzzleThatNeedsCrossLinePropagationButNoGuessing() {
         Puzzle puzzle = new Puzzle(
-                List.of(List.of(1), List.of(3), List.of(1)),
-                List.of(List.of(1), List.of(3), List.of(1)),
+                List.of(Clue.of(1), Clue.of(3), Clue.of(1)),
+                List.of(Clue.of(1), Clue.of(3), Clue.of(1)),
                 3, 3);
 
         assertInstanceOf(SolveResult.Solved.class, solver.solve(puzzle));
@@ -41,8 +42,8 @@ class DynamicProgrammingSolverTest {
         // progress, same reasoning as the candidate-based solvers, just via
         // window overlap instead of candidate-set intersection.
         Puzzle puzzle = new Puzzle(
-                List.of(List.of(1), List.of(1), List.of(1)),
-                List.of(List.of(1), List.of(1), List.of(1)),
+                List.of(Clue.of(1), Clue.of(1), Clue.of(1)),
+                List.of(Clue.of(1), Clue.of(1), Clue.of(1)),
                 3, 3);
 
         assertInstanceOf(SolveResult.Solved.class, solver.solve(puzzle));
@@ -50,7 +51,7 @@ class DynamicProgrammingSolverTest {
 
     @Test
     void reportsNoSolutionWhenClueExceedsLineLength() {
-        Puzzle puzzle = new Puzzle(List.of(List.of(2)), List.of(List.of(2)), 1, 1);
+        Puzzle puzzle = new Puzzle(List.of(Clue.of(2)), List.of(Clue.of(2)), 1, 1);
 
         assertInstanceOf(SolveResult.NoSolution.class, solver.solve(puzzle));
     }

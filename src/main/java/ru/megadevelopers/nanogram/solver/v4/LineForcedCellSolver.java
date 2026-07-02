@@ -1,9 +1,9 @@
 package ru.megadevelopers.nanogram.solver.v4;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import ru.megadevelopers.nanogram.model.Clue;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Determines, for a single line, which cells are forced FILLED or EMPTY
@@ -16,8 +16,8 @@ import java.util.List;
 class LineForcedCellSolver {
 
     /** Forced values per cell (NO_VALUE where still undetermined), or null if infeasible. */
-    static Cell[] determineForced(LineView line, List<Integer> clue) {
-        int[] blockLengths = clue.stream().filter(v -> v != 0).mapToInt(Integer::intValue).toArray();
+    static Cell[] determineForced(LineView line, Clue clue) {
+        int[] blockLengths = clue.blockLengths().stream().mapToInt(Integer::intValue).toArray();
         int lineLength = line.length();
         int blockCount = blockLengths.length;
 

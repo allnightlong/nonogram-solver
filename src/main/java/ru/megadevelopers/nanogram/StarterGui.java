@@ -3,6 +3,7 @@ package ru.megadevelopers.nanogram;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import ru.megadevelopers.nanogram.gui.NanogramFrame;
+import ru.megadevelopers.nanogram.model.Clue;
 import ru.megadevelopers.nanogram.model.NanogramBoard;
 
 import javax.swing.*;
@@ -17,8 +18,8 @@ public class StarterGui {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(resource.openStream());
 
-        List<List<Integer>> dataTop = parseClueArray(root.get("data_top"));
-        List<List<Integer>> dataLeft = parseClueArray(root.get("data_left"));
+        List<Clue> dataTop = parseClueArray(root.get("data_top"));
+        List<Clue> dataLeft = parseClueArray(root.get("data_left"));
         int width = root.get("width").asInt();
         int height = root.get("height").asInt();
 
@@ -35,14 +36,14 @@ public class StarterGui {
         });
     }
 
-    private static List<List<Integer>> parseClueArray(JsonNode array) {
-        List<List<Integer>> result = new ArrayList<>();
+    private static List<Clue> parseClueArray(JsonNode array) {
+        List<Clue> result = new ArrayList<>();
         for (JsonNode row : array) {
-            List<Integer> clues = new ArrayList<>();
+            List<Integer> raw = new ArrayList<>();
             for (JsonNode element : row) {
-                clues.add(element.isNumber() ? element.asInt() : 0);
+                raw.add(element.isNumber() ? element.asInt() : 0);
             }
-            result.add(clues);
+            result.add(new Clue(raw));
         }
         return result;
     }

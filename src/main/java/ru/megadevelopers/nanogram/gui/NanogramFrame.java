@@ -68,14 +68,12 @@ public class NanogramFrame extends JFrame {
         }
 
         if (row < topOffset) {
-            List<Integer> topColumn = nanogramBoard.top.get(column - leftOffset).stream()
-                    .filter(v -> v != 0).toList();
+            List<Integer> topColumn = nanogramBoard.top.get(column - leftOffset).blockLengths();
             int index = row - topOffset + topColumn.size();
             return index >= 0 ? String.valueOf(topColumn.get(index)) : "";
         }
 
-        List<Integer> leftRow = nanogramBoard.left.get(row - topOffset).stream()
-                .filter(v -> v != 0).toList();
+        List<Integer> leftRow = nanogramBoard.left.get(row - topOffset).blockLengths();
         int index = column - leftOffset + leftRow.size();
         return index >= 0 ? String.valueOf(leftRow.get(index)) : "";
     }

@@ -1,6 +1,7 @@
 package ru.megadevelopers.nanogram.solver.support;
 
 import ru.megadevelopers.nanogram.model.Cell;
+import ru.megadevelopers.nanogram.model.Clue;
 import ru.megadevelopers.nanogram.model.Line;
 import ru.megadevelopers.nanogram.solver.Puzzle;
 
@@ -20,24 +21,24 @@ public class LineConstraintPropagator {
 
     private final int width;
     private final int height;
-    private final List<List<BitSet>> rowCandidates;
-    private final List<List<BitSet>> columnCandidates;
+    private final List<LineCandidates> rowCandidates;
+    private final List<LineCandidates> columnCandidates;
 
     public LineConstraintPropagator(Puzzle puzzle) {
         this.width = puzzle.width();
         this.height = puzzle.height();
         this.rowCandidates = new ArrayList<>();
-        for (List<Integer> clue : puzzle.rowClues()) {
-            rowCandidates.add(new ArrayList<>(Line.candidates(clue, width)));
+        for (Clue clue : puzzle.rowClues()) {
+            rowCandidates.add(new LineCandidates(Line.candidates(clue, width)));
         }
         this.columnCandidates = new ArrayList<>();
-        for (List<Integer> clue : puzzle.columnClues()) {
-            columnCandidates.add(new ArrayList<>(Line.candidates(clue, height)));
+        for (Clue clue : puzzle.columnClues()) {
+            columnCandidates.add(new LineCandidates(Line.candidates(clue, height)));
         }
     }
 
     private LineConstraintPropagator(int width, int height,
-                                      List<List<BitSet>> rowCandidates, List<List<BitSet>> columnCandidates) {
+                                      List<LineCandidates> rowCandidates, List<LineCandidates> columnCandidates) {
         this.width = width;
         this.height = height;
         this.rowCandidates = deepCopy(rowCandidates);
@@ -67,7 +68,7 @@ public class LineConstraintPropagator {
         Cell[][] board = new Cell[height][width];
         for (int row = 0; row < height; row++) {
             for (int column = 0; column < width; column++) {
-                board[row][column] = cellAt(rowCandidates.get(row), column);
+                board[row][column] = rowCandidates.get(row).cellAt(column);
             }
         }
         return board;
@@ -99,14 +100,14 @@ public class LineConstraintPropagator {
         }
 
         if (bestRow >= 0 && (bestColumn < 0 || bestRowSize <= bestColumnSize)) {
-            return new GuessCell(bestRow, firstUndetermined(rowCandidates.get(bestRow), width));
+            return new GuessCell(bestRow, rowCandidates.get(bestRow).firstUndetermined(width));
         }
-        return new GuessCell(firstUndetermined(columnCandidates.get(bestColumn), height), bestColumn);
+        return new GuessCell(columnCandidates.get(bestColumn).firstUndetermined(height), bestColumn);
     }
 
     /** Restricts the given cell to the given value for a guess. Returns false if that's an immediate contradiction. */
     public boolean restrictCell(GuessCell guess, boolean filled) {
-        List<BitSet> candidates = rowCandidates.get(guess.row());
+        LineCandidates candidates = rowCandidates.get(guess.row());
         candidates.removeIf(candidate -> candidate.get(guess.column()) != filled);
         return !candidates.isEmpty();
     }
@@ -121,7 +122,7 @@ public class LineConstraintPropagator {
         return removedFromColumns + removedFromRows;
     }
 
-    private static int reduce(List<List<BitSet>> a, List<List<BitSet>> b) {
+    private static int reduce(List<LineCandidates> a, List<LineCandidates> b) {
         int countRemoved = 0;
 
         for (int i = 0; i < a.size(); i++) {
@@ -147,34 +148,10 @@ public class LineConstraintPropagator {
         return countRemoved;
     }
 
-    private static Cell cellAt(List<BitSet> candidates, int index) {
-        if (!allAgree(candidates, index)) return Cell.NO_VALUE;
-        return candidates.get(0).get(index) ? Cell.FILLED : Cell.EMPTY;
-    }
-
-    private static int firstUndetermined(List<BitSet> candidates, int bound) {
-        for (int i = 0; i < bound; i++) {
-            if (!allAgree(candidates, i)) return i;
-        }
-        throw new IllegalStateException("line has no undetermined cell");
-    }
-
-    private static boolean allAgree(List<BitSet> candidates, int index) {
-        boolean first = candidates.get(0).get(index);
-        for (BitSet candidate : candidates) {
-            if (candidate.get(index) != first) return false;
-        }
-        return true;
-    }
-
-    private static List<List<BitSet>> deepCopy(List<List<BitSet>> source) {
-        List<List<BitSet>> copy = new ArrayList<>();
-        for (List<BitSet> line : source) {
-            List<BitSet> lineCopy = new ArrayList<>();
-            for (BitSet candidate : line) {
-                lineCopy.add((BitSet) candidate.clone());
-            }
-            copy.add(lineCopy);
+    private static List<LineCandidates> deepCopy(List<LineCandidates> source) {
+        List<LineCandidates> copy = new ArrayList<>();
+        for (LineCandidates line : source) {
+            copy.add(line.copy());
         }
         return copy;
     }

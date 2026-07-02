@@ -12,7 +12,7 @@ class LineTest {
     void candidates_blockPlusTwoBlock() {
         assertEquals(
             Line.bitSetList(List.of(List.of(1, 0, 1, 1))),
-            Line.candidates(List.of(1, 2), 4)
+            Line.candidates(Clue.of(1, 2), 4)
         );
     }
 
@@ -24,7 +24,7 @@ class LineTest {
                 List.of(0, 1, 0),
                 List.of(0, 0, 1)
             )),
-            Line.candidates(List.of(1), 3)
+            Line.candidates(Clue.of(1), 3)
         );
     }
 
@@ -37,7 +37,7 @@ class LineTest {
                 List.of(0, 0, 1, 1, 0),
                 List.of(0, 0, 0, 1, 1)
             )),
-            Line.candidates(List.of(2), 5)
+            Line.candidates(Clue.of(2), 5)
         );
     }
 
@@ -49,7 +49,7 @@ class LineTest {
                 List.of(1, 1, 0, 0, 1),
                 List.of(0, 1, 1, 0, 1)
             )),
-            Line.candidates(List.of(2, 1), 5)
+            Line.candidates(Clue.of(2, 1), 5)
         );
     }
 }

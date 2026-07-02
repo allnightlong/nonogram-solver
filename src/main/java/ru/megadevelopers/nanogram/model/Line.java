@@ -19,8 +19,8 @@ public class Line {
         return true;
     }
 
-    public static List<BitSet> candidates(List<Integer> clues, int length) {
-        List<Integer> blocks = clues.stream().filter(v -> v != 0).toList();
+    public static List<BitSet> candidates(Clue clue, int length) {
+        List<Integer> blocks = clue.blockLengths();
         int totalFilled = blocks.stream().mapToInt(Integer::intValue).sum();
         int slack = length - totalFilled - Math.max(blocks.size() - 1, 0);
 
